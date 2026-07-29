@@ -9,3 +9,8 @@ C:\Users\gudiw\Downloads\Flam\src\main\java\com\queuectl\cli\WorkerCommand.java
 C:\Users\gudiw\Downloads\Flam\src\main\java\com\queuectl\cli\WorkerStartCommand.java
 C:\Users\gudiw\Downloads\Flam\src\main\java\com\queuectl\cli\WorkerStopCommand.java
 C:\Users\gudiw\Downloads\Flam\src\main\java\com\queuectl\db\Database.java
+C:\Users\gudiw\Downloads\Flam\src\main\java\com\queuectl\model\Job.java
+C:\Users\gudiw\Downloads\Flam\src\main\java\com\queuectl\model\JobStatus.java
+C:\Users\gudiw\Downloads\Flam\src\main\java\com\queuectl\model\WorkerInfo.java
+C:\Users\gudiw\Downloads\Flam\src\main\java\com\queuectl\repository\JobRepository.java
+C:\Users\gudiw\Downloads\Flam\src\main\java\com\queuectl\repository\WorkerRepository.java
