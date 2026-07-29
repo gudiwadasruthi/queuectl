@@ -1,2 +1,3 @@
+com\queuectl\cli\EnqueueCommandTest.class
 com\queuectl\repository\JobRepositoryTest.class
 com\queuectl\repository\WorkerRepositoryTest.class
