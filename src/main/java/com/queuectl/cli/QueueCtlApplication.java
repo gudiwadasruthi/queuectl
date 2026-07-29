@@ -1,5 +1,6 @@
 package com.queuectl.cli;
 
+import com.queuectl.db.Database;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -27,6 +28,7 @@ public class QueueCtlApplication implements Runnable {
     }
 
     public static void main(String[] args) {
+        new Database().migrate();
         int exitCode = new CommandLine(new QueueCtlApplication()).execute(args);
         System.exit(exitCode);
     }
