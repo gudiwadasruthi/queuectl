@@ -25,6 +25,11 @@ public class Database {
 
     public Database(String dbPath) {
         this.dbPath = (dbPath != null && !dbPath.isBlank()) ? dbPath : "queuectl.db";
+        try {
+            Class.forName("org.sqlite.JDBC");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("SQLite JDBC driver not found", e);
+        }
     }
 
     /**

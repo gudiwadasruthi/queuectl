@@ -62,7 +62,6 @@ public class StatusCommand implements Runnable {
 
             System.out.println("Worker Summary");
             System.out.println("----------------------------------------");
-            System.out.printf("Registered Workers: %d%n", totalWorkers);
             System.out.printf("Total Workers:      %d%n", totalWorkers);
             System.out.printf("Running Workers:    %d%n", runningWorkers);
             System.out.printf("Stopped Workers:    %d%n", stoppedWorkers);
