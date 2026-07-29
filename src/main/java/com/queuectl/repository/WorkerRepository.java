@@ -168,6 +168,49 @@ public class WorkerRepository {
         }
     }
 
+    /**
+     * Computes total registered worker count using database aggregation.
+     *
+     * @return total count of worker records
+     */
+    public long countTotalWorkers() {
+        String sql = "SELECT COUNT(*) FROM workers";
+
+        try (Connection conn = database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getLong(1);
+            }
+            return 0L;
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to count total workers", e);
+        }
+    }
+
+    /**
+     * Computes worker counts grouped by status string using database aggregation.
+     *
+     * @return a Map mapping status string to count
+     */
+    public java.util.Map<String, Long> countWorkersByStatus() {
+        String sql = "SELECT status, COUNT(*) AS cnt FROM workers GROUP BY status";
+
+        java.util.Map<String, Long> counts = new java.util.HashMap<>();
+        try (Connection conn = database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                counts.put(rs.getString("status"), rs.getLong("cnt"));
+            }
+            return counts;
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to count workers by status", e);
+        }
+    }
+
     private WorkerInfo mapRow(ResultSet rs) throws SQLException {
         WorkerInfo worker = new WorkerInfo();
         worker.setId(rs.getString("id"));

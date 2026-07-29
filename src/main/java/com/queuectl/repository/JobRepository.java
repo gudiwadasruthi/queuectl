@@ -99,7 +99,7 @@ public class JobRepository {
     public List<Job> findAll() {
         String sql = "SELECT id, command, status, attempts, max_attempts, available_at, "
                 + "locked_at, locked_by, lease_expires_at, last_error, created_at, updated_at "
-                + "FROM jobs ORDER BY id ASC";
+                + "FROM jobs ORDER BY created_at ASC, id ASC";
 
         List<Job> jobs = new ArrayList<>();
         try (Connection conn = database.getConnection();
@@ -124,7 +124,7 @@ public class JobRepository {
     public List<Job> findByStatus(JobStatus status) {
         String sql = "SELECT id, command, status, attempts, max_attempts, available_at, "
                 + "locked_at, locked_by, lease_expires_at, last_error, created_at, updated_at "
-                + "FROM jobs WHERE status = ? ORDER BY id ASC";
+                + "FROM jobs WHERE status = ? ORDER BY created_at ASC, id ASC";
 
         List<Job> jobs = new ArrayList<>();
         try (Connection conn = database.getConnection();

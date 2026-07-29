@@ -1,3 +1,5 @@
+com\queuectl\cli\ListCommandTest.class
+com\queuectl\repository\WorkerRepositoryTest.class
+com\queuectl\cli\StatusCommandTest.class
 com\queuectl\cli\EnqueueCommandTest.class
 com\queuectl\repository\JobRepositoryTest.class
-com\queuectl\repository\WorkerRepositoryTest.class
