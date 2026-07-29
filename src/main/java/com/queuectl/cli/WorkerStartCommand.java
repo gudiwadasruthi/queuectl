@@ -64,8 +64,24 @@ public class WorkerStartCommand implements Runnable {
             });
             Runtime.getRuntime().addShutdownHook(shutdownHook);
 
+            // Create JobRepository to claim jobs
+            com.queuectl.repository.JobRepository jobRepository = new com.queuectl.repository.JobRepository(new Database());
+            boolean isBusy = false;
+
             while (running) {
                 try {
+                    if (!isBusy) {
+                        java.util.Optional<com.queuectl.model.Job> claimedJob = jobRepository.claimNextJob(workerId);
+                        if (claimedJob.isPresent()) {
+                            com.queuectl.model.Job job = claimedJob.get();
+                            System.out.println("Claimed Job");
+                            System.out.println("ID: " + job.getId());
+                            System.out.println("Command: " + job.getCommand());
+                            System.out.println("Worker: " + workerId);
+                            System.out.println();
+                            isBusy = true;
+                        }
+                    }
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();

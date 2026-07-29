@@ -273,4 +273,77 @@ public class JobRepository {
         job.setUpdatedAt(rs.getLong("updated_at"));
         return job;
     }
+
+    /**
+     * Atomically claims the next available pending job for the given worker.
+     *
+     * @param workerId the ID of the worker claiming the job
+     * @return an Optional containing the claimed Job, or empty if none available
+     */
+    public Optional<Job> claimNextJob(String workerId) {
+        long now = System.currentTimeMillis();
+        long leaseExpiresAt = now + 30000;
+
+        String selectSql = "SELECT id, command, status, attempts, max_attempts, available_at, "
+                + "locked_at, locked_by, lease_expires_at, last_error, created_at, updated_at "
+                + "FROM jobs WHERE status = 'PENDING' AND available_at <= ? ORDER BY created_at ASC LIMIT 1";
+
+        String updateSql = "UPDATE jobs SET status = 'RUNNING', locked_by = ?, locked_at = ?, "
+                + "lease_expires_at = ?, updated_at = ? WHERE id = ? AND status = 'PENDING'";
+
+        try (Connection conn = database.getConnection()) {
+            conn.setAutoCommit(false);
+            
+            try (Statement stmt = conn.createStatement()) {
+                // SQLite JDBC starts a deferred transaction on setAutoCommit(false).
+                // We commit it and explicitly start an immediate transaction.
+                stmt.execute("COMMIT");
+                stmt.execute("BEGIN IMMEDIATE TRANSACTION");
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
+
+            Job selectedJob = null;
+            try (PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
+                selectStmt.setLong(1, now);
+                try (ResultSet rs = selectStmt.executeQuery()) {
+                    if (rs.next()) {
+                        selectedJob = mapRow(rs);
+                    }
+                }
+            }
+
+            if (selectedJob == null) {
+                conn.rollback();
+                return Optional.empty();
+            }
+
+            try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                updateStmt.setString(1, workerId);
+                updateStmt.setLong(2, now);
+                updateStmt.setLong(3, leaseExpiresAt);
+                updateStmt.setLong(4, now);
+                updateStmt.setLong(5, selectedJob.getId());
+
+                int updatedRows = updateStmt.executeUpdate();
+                if (updatedRows == 0) {
+                    conn.rollback();
+                    return Optional.empty();
+                }
+
+                conn.commit();
+
+                selectedJob.setStatus(JobStatus.RUNNING);
+                selectedJob.setLockedBy(workerId);
+                selectedJob.setLockedAt(now);
+                selectedJob.setLeaseExpiresAt(leaseExpiresAt);
+                selectedJob.setUpdatedAt(now);
+
+                return Optional.of(selectedJob);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to claim next job for worker: " + workerId, e);
+        }
+    }
 }
